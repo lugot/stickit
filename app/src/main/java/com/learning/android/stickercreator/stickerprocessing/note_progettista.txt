@@ -1,0 +1,75 @@
+DETTAGLI IMPLEMENTATIVI 
+Per ogni fase in StickerCreationTask c'è la possibilità di fallire, perché la rete non riconoscere nulla o perché
+la componente più estesa è piccola (probabile rumore), in tal caso i metodi di StickerCreationUtils ritornano null
+come sentinella, viene dunque ritornato null da doInBackground per segnalare il mancato riconoscimento.
+
+La classe SemanticSegmentation, che esegue la segmentazione, è rigida nelle dimensioni di input: deleghiamo 
+all'utilizzatore della classe il compito di ridimensionare l'immagine, perché così se insoddisfatto dei metodi di scaling
+delle librerie Android può benissimo scriverle lui, come successo, vista l'implementazione di scale2x
+
+Lo scaling iniziale progessivo viene fatto per generalizzare il processo: da uno sticker di dimensioni KxK viene scalato
+la metà N volte fino ad arrivare ad una dimensione minore di quella della rete (<257). Viene scalato della metà poichè
+successivamente la maschera verrà riscalata con un metodo che raddoppia le dimensioni.
+In realtà nel nostro caso, basta scalare una sola volta, da 512 a 256 (<257), ma è stato generalizzato il processo
+per sticker di dimensioni diverse.
+
+La dimensione di ingresso può anche essere minore di quella della rete: in quel caso verranno aggiunti pixel neri, che non 
+interferiscono con la bontà del risultato finale. Non si è voluto forzare lo scalamento a 257 perchè si è notato poiché il metodo
+di scaling delle librerie Android (createScaledBitmap), nel scalare di un pixel (nel nostro caso da 256 a 257) porta a pessimi risultati.
+
+Dopo la segmentazione semantica, la maschera non rimane una Bitmap ma una matrice di interi: oltre alla maggiore
+velocità di esecuzione, i successivi passi di processo si adattano molto facilmente utilizzando matrici. La segmentazione
+inoltre produce una matrice binaria, ma sarebbe andato bene qualsiasi altro valore, poichè l'assegnamento delle etichette
+è per interi progessivi (e il valore uno viene riscritto).
+Quando si va a isolare la componente connessa più grande, riscrivendo tutti gli elementi della matrice, si va anche a
+inserire valori sentinella per le elaborazioni successive.
+
+Dopo l'isolamento della componente connessa più grande si vanno a riempire eventuali buchi nella figura principale.
+Viene implementata una ricerca del bordo con sucessivo rifinimento per connettività e nel primo pixel non di bordo e dentro
+la figura viene eseguito del floodfill (in una matrice indentica ma di solo bordo) per riempire la figura intera.
+
+Dopo aver ottenuto la maschera intera, viene di nuovo cercato il bordo e la maschera viene scalata: l'algorimo scelto è 
+scale2x, usato in pixel arts ma sopratutto in emulatori di vecchie consolle di videochiochi. E' stato scelto poichè molto veloce,
+poichè opera direttamente su matrici (senza accedere a delle Bitmap o converitre mat -> bmp & scalamento -> mat)
+e poichè 'smussa' parte del bordo della maschera.
+
+Avendo il bordo come array di pixel viene applicato un 'growBorder' che fa crescre il bordo di due pixel. Questo, dato un 
+pixel, crea un pattern circolare e, dopo aver eliminato i pixel outOfBounds, lo applica, marchiandone
+i pixel come bordo. Si fa crescere il bordo di due pixel. Il 'due' è un valore empirico: 
+la rete restituisce una maschera che è leggermente più grande della figura della persona da inquadrate. I due pixel riescono
+spesso a sopperire a questo problema. 
+
+
+CODICE DA MIGLIORARE
+Tenendo presente che il collo di bottiglia è l'inferenza della rete, ci sono un paio di cose migliorabili:
+- growBorder è molto """"brute force"""", il pattern lo crea circolare e elimina successivamente i pixel. A livello di 
+	prestazioni altre scelte potrebbero essere comparabili, ma qualsiasi altro modo è sicuramente più elegante
+- l'algoritmo di Koshel-Hopelman è ottimo ma poco modificabile. Una scelta di un algoritmo che, 
+	con semplici modifiche, possa adattarsi alla ricerca di cluster sia in 4 che in 8 direzioni avrebbe reso
+	inutile il metodo refineBorder, dato che con la versione a 8 direzioni si sarebbe potuto ricercare in modo
+	naturale il bordo più lungo
+
+	
+BUG NOTI
+Il più grande bug noto è il seguente: è possibile che il bordo di lunghezza maggiore possa creare un 'ripiegamento', o un
+'loop', come segue:
+
+   BBBBBBB   BBB
+  BF     B BB   B
+ B        B      B
+B        B B     B
+BBBBBBBBB   B    B
+				 BBBB
+
+In questo caso l'algoritmo floodFill verrà eseguito sul primo pixel dentro il bordo (F nella precedente figura)
+				 
+	BBBBBBB   BBB
+  BXXXXXXB BB   B
+ BXXXXXXXXB      B
+BXXXXXXXXB B     B
+BBBBBBBBB   B    B
+				 BBBB
+				 
+Verrà colorata solo una parte della maschera e quindi parte dell'immagine non verrà considerata.
+Questo malfunzionamento è presente solo se la foto è mossa o in condizioni di rumore: nella maggioranza dei casi
+l'utente la vorrà comunque rifare.

@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">StickIT</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="retry">RETRY</string>
+    <string name="camera">CAMERA</string>
+    <string name="settings">Settings</string>
+    <string name="stickit">StickIT</string>
+    <string name="save">SAVE</string>
+    <string name="back">BACK</string>
+    <string name="gpu_processing">GPU processing</string>
+    <string name="loading">Loading...</string>
+    <string name="gallery">GALLERY</string>
+    <string name="image_already_saved">Image already saved!</string>
+    <string name="saved">Saved!</string>
+    <string name="no_faces_detected">No faces detected!</string>
+    <string name="looking_for_someone">LOOKING FOR SOMEONE...</string>
+    <string name="removing_the_garbage">REMOVING THE GARBAGE...</string>
+    <string name="filling_the_holes">FILLING THE HOLES...</string>
+    <string name="creating_the_sticker">CREATING THE STICKER...</string>
+    <string name="done">DONE!</string>
+    <string name="processed_using">Processed using</string>
+    <string name="gpu">GPU</string>
+    <string name="cpu">CPU</string>
+    <string name="permission_denied">Permission denied!</string>
+    <string name="gpu_on">GPU ON</string>
+    <string name="gpu_off">GPU OFF</string>
+    <string name="total_time">Total time:</string>
+    <string name="inference_time">Inference time:</string>
+</resources>

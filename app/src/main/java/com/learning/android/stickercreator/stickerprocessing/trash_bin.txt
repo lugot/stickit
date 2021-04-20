@@ -1,0 +1,346 @@
+codice di qualità richiede anche vari trial and error:
+
+
+package com.learning.android.stickercreator;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+//TODO: Commentare
+
+public class Graph {
+    // A puser define class to represent a graph.
+    // A graph is an array of adjacency lists.
+    // Size of array will be V (number of vertices
+    // in graph)
+    int V;
+    LinkedList<Integer>[] adjListArray;
+
+    // constructor
+    Graph(int V) {
+        this.V = V;
+        // define the size of array as
+        // number of vertices
+        adjListArray = new LinkedList[V];
+
+        // Create a new list for each vertex
+        // such that adjacent nodes can be stored
+
+        for(int i = 0; i < V ; i++){
+            adjListArray[i] = new LinkedList<Integer>();
+        }
+    }
+
+    // Adds an edge to an undirected graph
+    void addEdge( int src, int dest) {
+        // Add an edge from src to dest.
+        adjListArray[src].add(dest);
+
+        // Since graph is undirected, add an edge from dest
+        // to src also
+        adjListArray[dest].add(src);
+    }
+
+    ArrayList<Integer> DFSUtil(int v, boolean[] visited, ArrayList<Integer> connectedComponent) {
+        // prima chiamata ricorsiva
+        if (connectedComponent == null)
+            connectedComponent = new ArrayList<>();
+
+        // Mark the current node as visited and print it
+        visited[v] = true;
+        connectedComponent.add(v);
+        // Recur for all the vertices
+        // adjacent to this vertex
+        for (int x : adjListArray[v]) {
+            if(!visited[x]) DFSUtil(x,visited,connectedComponent);
+        }
+
+        return connectedComponent;
+    }
+    ArrayList<ArrayList<Integer>> largestConnectedComponent() {
+        // Mark all the vertices as not visited
+        boolean[] visited = new boolean[V];
+        ArrayList<ArrayList<Integer>> connectedComponents = new ArrayList<>();
+
+        for(int v = 0; v < V; ++v) {
+            if(!visited[v]) {
+                connectedComponents.add(DFSUtil(v,visited,null));
+            }
+        }
+
+        return connectedComponents;
+    }
+}
+
+
+
+    public static int[] matrixBmtToArray(int[][] matBmp){
+        int[] arrBmp = new int[ matBmp.length * matBmp[0].length ];
+
+        int pixelIndex = 0;
+
+        for (int i=0; i<matBmp.length; i++)
+            for (int j=0; j<matBmp[0].length; j++) arrBmp[i*matBmp.length + j] = matBmp[j][i]; //???
+
+
+        return arrBmp;
+    }
+
+    public static int[][] bitmapToMatrix (Bitmap bmp){
+        int bmpWidth = bmp.getWidth();
+        int bmpHeight = bmp.getHeight();
+
+        int[][] matBmp = new int[bmpHeight][bmpWidth];
+
+        for (int i=0; i<bmpHeight; i++)
+            for (int j=0; j<bmpWidth; j++)
+                matBmp[i][j] = bmp.getPixel(i,j);
+
+
+        return matBmp;
+    }
+
+    private static Bitmap adjustOpacity(Bitmap bitmap, int opacity)
+    {
+        Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(mutableBitmap);
+        int colour = (opacity & 0xFF) << 24;
+        canvas.drawColor(colour, PorterDuff.Mode.DST_IN);
+        return mutableBitmap;
+    }
+
+
+//Bitmap b = Bitmap.createBitmap(257,257,Bitmap.Config.ARGB_8888);
+        /*
+        for (int i=0; i<256; i++) {
+            for (int j=0; j<256; j++)
+                b.setPixel(i,j,bitmap.getPixel(i,j));
+        }
+        for (int i=0; i<256; i++) b.setPixel(i,256,bitmap.getPixel(i,255));
+        for (int i=0; i<256; i++) b.setPixel(256,i,bitmap.getPixel(255,i));
+        b.setPixel(256,256,b.getPixel(255,255));
+        */
+
+//bitmap.getPixels(bmpPixels, 0, bmpWidth, 0, 0, bmpWidth, bmpHeight);
+        //bmpPixels = ImageSegmentationUtils.bitmapToMatrix(bitmap);
+
+
+
+        //int[] p = new int[257*257];
+        //bitmap.getPixels(p,0,257,0,0,257,257);
+        //int[] p = ImageSegmentationUtils.matrixBmtToArray(bmpPixels);
+        //bmpPixels = ImageSegmentationUtils.bitmapToMatrix(bitmap);
+
+
+   /*
+           int[] pixels = ImageSegmentationUtils.matrixBmtToArray(segmentedMatrixBmp);
+           Bitmap mask = Bitmap.createBitmap(pixels,257,257,Bitmap.Config.ARGB_8888);
+           mask = Bitmap.createScaledBitmap(mask,512,512,true);
+           segmentedMatrixBmp = ImageSegmentationUtils.bitmapToMatrix(mask);
+           */
+
+
+
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+
+                // pixel superiore
+                if (i > 0 && label[i - 1][j] != 0 && pixel[i][j] == pixel[i - 1][j])
+                     label[i][j] = label[i - 1][j];
+
+                // pixel a sinistra
+                else if (j > 0 && label[i][j - 1] != 0 && pixel[i][j] == pixel[i][j - 1])
+                    label[i][j] = label[i][j - 1];
+
+                // pixel inferiore
+                else if (i < x - 1 && label[i + 1][j] != 0 && pixel[i][j] == pixel[i + 1][j])
+                    label[i][j] = label[i + 1][j];
+
+                // pixel a destra
+                else if (j < y - 1 && label[i][j + 1] != 0 && pixel[i][j] == pixel[i][j + 1])
+                    label[i][j] = label[i][j + 1];
+
+                // trovata nuova componente
+                else {
+                    label[i][j] = componentID;
+                    componentID += 1;
+                }
+
+                componentSize[label[i][j]] += 1;
+            }
+        }
+
+        int largestComponentID = 0;
+        int largestComponentSize = 0;
+        for (int i = 0; i < componentSize.length; i++){
+            if (componentSize[i] > largestComponentSize) {
+                largestComponentID = i;
+                largestComponentSize = componentSize[i];
+            }
+        }
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                if (label[i][j] != largestComponentID)
+                    b.setPixel(i,j,Color.WHITE);
+            }
+        }
+
+        return 1;
+    }
+
+
+    /*
+    public static ArrayList<Integer> getMaskEdge (Bitmap mask, int bgColor){
+        int maskWidth = mask.getWidth();
+        int maskHeight = mask.getHeight();
+
+        int[] pixels = new int[maskHeight*maskWidth];
+        mask.getPixels(pixels,0,maskWidth,0,0,maskWidth,maskHeight);
+
+        ArrayList<Integer> edge = new ArrayList<>();
+
+        for (int pixel : cc){
+            int pixelX = pixel % maskWidth;
+            int pixelY = (int) ((pixel - pixelX) / maskHeight);
+
+            ArrayList<Integer> pattern = getCircularPattern(pixelX,pixelY,2,0,0,maskWidth,maskHeight);
+
+            for (int x : pattern){
+                //if (pixels[x] == Color.GREEN) Log.d(TAG,"verdeeeeeeeeeeeeeeeeeeeee");
+                if (pixels[x] == Color.TRANSPARENT){
+                    //Log.d(TAG,"pppppppppppppppppppppppppppppppppppppppppppppppppppp");
+                    edge.add(x);
+                }
+            }
+
+        }
+
+
+        return edge;
+    }
+
+
+    /*
+    public static Bitmap applyMask(Bitmap bmp, Bitmap mask){
+        bmp = Bitmap.createScaledBitmap(bmp,512,512,true);
+        int bmpWidth = bmp.getWidth();
+        int bmpHeight = bmp.getHeight();
+        mask = Bitmap.createScaledBitmap(mask, bmpWidth, bmpHeight, true);
+
+        for (int i = 0; i < bmpHeight; i++) {
+            for (int j = 0; j < bmpWidth; j++) {
+                try {
+                    if (mask.getPixel(i, j) == 0)
+                        bmp.setPixel(i, j, Color.TRANSPARENT);
+                    if (mask.getPixel(i, j) == Color.YELLOW) {
+                        Log.d(TAG,"trovato blu");
+                        bmp.setPixel(i, j, Color.BLUE);
+                    }
+                } catch (IllegalArgumentException e){
+                    Log.d(TAG,"IllegalArgument");
+                }
+            }
+        }
+
+
+        return bmp;
+    }
+
+
+
+    public static int[] normalizeLabel(int[] bmp){
+        for (int i=0; i<bmp.length; i++)
+            if (bmp[i] != 0) bmp[i]=1;
+
+        return bmp;
+    }
+
+    public static int[][] normalizeLabel(int[][] bmp){
+        for (int i=0; i<bmp.length; i++)
+            for (int j=0; j<bmp[0].length; j++)
+            if (bmp[i][j] != 0) bmp[i][j]=1;
+
+        return bmp;
+    }
+
+    /*
+    public static Bitmap largestConnectedComponentFilter(Bitmap bmp) {
+        // sistema di assi matrix-like
+        int x = bmp.getHeight();
+        int y = bmp.getWidth();
+
+        Log.d(TAG,"inizio grafo");
+        BitmapGraph bmpGraph = new BitmapGraph(bmp);
+        Log.d(TAG,"fine grafo");
+
+
+        ArrayList<Integer> comp = bmpGraph.getLargestForegroundComponent(Color.TRANSPARENT);
+        ArrayList<Integer> border = bmpGraph.getBorder();
+
+        int[] pixels = new int[bmp.getHeight() * bmp.getWidth()];
+        int[] bmpPixels = bmpGraph.getPixels();
+
+        Log.d(TAG,"qui"+comp.size());
+        for (int pixel: comp)
+            pixels[pixel] = bmpPixels[pixel];
+
+        Log.d(TAG,"qui"+border.size());
+        for (int pixel: border)
+            pixels[pixel] = Color.BLUE;
+
+        return Bitmap.createBitmap(pixels, x, y, Bitmap.Config.ARGB_8888);
+    }
+
+
+
+ */
+
+    /**
+     * Scales the provided bitmap to have the height and width provided.
+     * (Alternative method for scaling bitmaps
+     * since Bitmap.createScaledBitmap(...) produces bad (blocky) quality bitmaps.)
+     *
+     * @param bitmap is the bitmap to scale.
+     * @param newWidth is the desired width of the scaled bitmap.
+     * @param newHeight is the desired height of the scaled bitmap.
+     * @return the scaled bitmap.
+     */
+    public static Bitmap scaleBitmap(Bitmap bitmap, int newWidth, int newHeight) {
+        Bitmap scaledBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888);
+
+        float scaleX = newWidth / (float) bitmap.getWidth();
+        float scaleY = newHeight / (float) bitmap.getHeight();
+        float pivotX = 0;
+        float pivotY = 0;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(scaleX, scaleY, pivotX, pivotY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bitmap, 0, 0, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+        return scaledBitmap;
+    }
+
+    public static Bitmap changeBitmapContrastBrightness(Bitmap bmp, float contrast, float brightness) {
+        ColorMatrix cm = new ColorMatrix(new float[]
+                {
+                        contrast, 0, 0, 0, brightness,
+                        0, contrast, 0, 0, brightness,
+                        0, 0, contrast, 0, brightness,
+                        0, 0, 0, 1, 0
+                });
+
+        Bitmap ret = Bitmap.createBitmap(bmp.getWidth(), bmp.getHeight(), bmp.getConfig());
+
+        Canvas canvas = new Canvas(ret);
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+        canvas.drawBitmap(bmp, 0, 0, paint);
+
+        return ret;
+    }
